@@ -16,7 +16,7 @@ While the PIOUS architecture is similar to HDFS the feature set is
 of course different.  PIOUS focuses on multi-dimensional files and
 light-weight concurrency control to support parallel file access.
 
-PIOUS is also written in C versus Java.
+PIOUS is also written in C whereas HDFS is in Java.
 
 So why am I putting this code out on GitHub when PVM is no longer
 widely used?  Good question.
@@ -30,4 +30,5 @@ Java, it will be a lot easier to port PIOUS and use it as a starting point
 versus starting from scratch.
 
 I confirmed that both PIOUS and PVM still build, run, and pass tests on
-recent Linux systems.
+recent Linux systems.  Complete instructions for doing so can be found
+in doc/piousUG1.2.pdf.

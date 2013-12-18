@@ -1,0 +1,55 @@
+.TH pious_setcwd 3PIOUS "25 January 1995" " " "PIOUS"
+.SH NAME
+pious_setcwd \- set the current working directory path
+
+.SH SYNOPSIS C
+int pious_setcwd(char *path);
+
+.SH SYNOPSIS FORTRAN
+subroutine piousfsetcwd(path, rc)
+
+integer rc
+
+character*(*) path
+
+.SH DESCRIPTION
+pious_setcwd() sets the current working directory path string for the calling
+process to
+.I path.
+The current working directory string is automatically concatenated,
+as a prefix,
+with all file pathnames to form the full file pathname string.
+
+The corresponding Fortran function accepts argument values of type integer
+and character, as required, and returns the result code in
+.I rc.
+
+Note that the current working directory path string is not checked for
+correctness or accessability until used to resolve a file pathname
+as discussed above.
+
+By default, the current working directory path string is the null string.
+
+.SH RETURN VALUES
+Upon successful completion, a value of PIOUS_OK (0) is returned.
+Otherwise, a negative value is returned indicating an error condition.
+
+.SH ERRORS
+The following error code values can be returned.
+
+.TP
+PIOUS_EINVAL
+invalid
+.I path
+argument
+
+.TP
+PIOUS_EINSUF
+insufficient system resources to complete operation
+
+.TP
+PIOUS_EUNXP
+unexpected error condition encountered
+
+.SH SEE ALSO
+pious_getcwd(3PIOUS)

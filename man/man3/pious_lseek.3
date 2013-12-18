@@ -1,0 +1,78 @@
+.TH pious_lseek 3PIOUS "25 January 1995" " " "PIOUS"
+.SH NAME
+pious_lseek \- seek to a specified file position
+
+.SH SYNOPSIS C
+pious_offt pious_lseek(int fd, pious_offt offset, int whence);
+
+.SH SYNOPSIS FORTRAN
+subroutine piousflseek(fd, offset, whence, rc)
+
+integer fd, offset, whence, rc
+
+.SH DESCRIPTION
+pious_lseek() sets the file pointer associated with the open file descriptor
+.I fd
+as follows:
+
+If
+.I whence
+is PIOUS_SEEK_SET then the file pointer is set to byte
+.I offset.
+
+If
+.I whence
+is PIOUS_SEEK_CUR then the file pointer is set to its current value plus
+.I offset.
+
+The corresponding Fortran function accepts argument values of type integer,
+and returns the result code in
+.I rc.
+
+Any error in updating the file pointer implies that the seek, and associated
+user-transaction if any, is aborted or that the PIOUS system state is
+inconsistent.
+
+
+.SH RETURN VALUES
+Upon successful completion, a non-negative value indicating the resulting
+file pointer value is returned.
+Otherwise, a negative value is returned indicating an error condition.
+
+.SH ERRORS
+The following error code values can be returned.
+
+.TP
+PIOUS_EBADF
+.I fd
+is not a valid open descriptor
+
+.TP
+PIOUS_EINVAL
+.I whence
+argument not a proper value, or resulting pointer offset would be invalid
+
+.TP
+PIOUS_EABORT
+seek/user-transaction aborted normally
+
+.TP
+PIOUS_EINSUF
+insufficient system resources to complete operation
+
+.TP
+PIOUS_ETPORT
+error condition in underlying transport system
+
+.TP
+PIOUS_EUNXP
+unexpected error condition encountered
+
+.TP
+PIOUS_EFATAL
+fatal error; check data server error logs
+
+.SH SEE ALSO
+pious_open(3PIOUS), pious_read(3PIOUS), pious_write(3PIOUS),
+pious_tbegin(3PIOUS), pious_tabort(3PIOUS),
+pious_sysinfo(3PIOUS)

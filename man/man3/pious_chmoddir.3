@@ -1,0 +1,109 @@
+.TH pious_chmoddir 3PIOUS "25 January 1995" " " "PIOUS"
+.SH NAME
+pious_chmoddir \- set directory file permission bits
+
+.SH SYNOPSIS C
+int pious_chmoddir(char *path, pious_modet mode);
+
+int pious_schmoddir(struct pious_dsvec *dsv, int dsvcnt,
+char *path, pious_modet mode);
+
+.SH SYNOPSIS FORTRAN
+subroutine piousfchmoddir(path, mode, rc)
+
+subroutine piousfschmoddir(hname, spath, lpath, dsvcnt, path, mode, rc)
+
+integer dsvcnt, mode, rc
+
+character*(*) hname, spath, lpath, path
+
+
+.SH DESCRIPTION
+pious_chmoddir() sets the permission bits of directory file
+.I path
+to
+.I mode
+on all default data servers.  If directory
+.I path
+does not exist on a subset of the data servers, then the directory file
+permission bits are set at the remaining servers.
+
+pious_schmoddir() performs the same action as pious_chmoddir(), except that
+the directory file permission bits are set on the data servers specified by the
+.I dsvcnt
+element vector
+.I dsv.
+
+Corresponding Fortran functions accept argument values of type integer
+and character, as required, and return the result code in
+.I rc.
+In specifying a set of data servers,
+.I hname, spath,
+and
+.I lpath
+take the place of the C structure
+.I dsv.
+
+See pious_open() for a discussion on valid values for arguments
+.I mode
+and
+.I dsv (hname, spath, lpath).
+
+
+.SH RETURN VALUES
+Upon successful completion, a value of PIOUS_OK (0) is returned.
+Otherwise, a negative value is returned indicating an error condition.
+
+Because a single error code is returned from potentially multiple operations,
+the value returned is the first error encountered if any.
+
+
+.SH ERRORS
+The following error code values can be returned.
+
+.TP
+PIOUS_EINVAL
+invalid argument value, or no data server executable on host
+
+.TP
+PIOUS_EACCES
+path prefix search permission denied
+
+.TP
+PIOUS_ENOENT
+file does not exist or
+.I path
+is the empty string
+
+.TP
+PIOUS_ENAMETOOLONG
+path or path component name too long
+
+.TP
+PIOUS_ENOTDIR
+a component of the path prefix is not a directory
+
+.TP
+PIOUS_EPERM
+insufficient privileges to complete operation
+
+.TP
+PIOUS_EINSUF
+insufficient system resources to complete operation
+
+.TP
+PIOUS_ETPORT
+error condition in underlying transport system
+
+.TP
+PIOUS_EUNXP
+unexpected error condition encountered
+
+.TP
+PIOUS_EFATAL
+fatal error; check data server error logs
+
+
+
+.SH SEE ALSO
+pious_open(3PIOUS)

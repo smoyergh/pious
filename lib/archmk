@@ -1,0 +1,69 @@
+#!/bin/sh
+#
+# PIOUS: Make Script
+#
+# Usage: archmk [make arguments]
+#
+# Verifies that PVM_ROOT is defined and sets PVM_ARCH appropriately.
+# If a subdirectory for architecture-specific object files does not
+# exist then one is created.  Finally, the current working directory
+# is changed to the architecture-specific subdirectory and make
+# is executed as follows:
+#
+#   make -f $PVM_ROOT/conf/$PVM_ARCH.def -f ../Makefile.archmk "$@"
+#
+# August 1994 Moyer
+#
+
+
+# check that $PVM_ROOT has been defined
+
+case "x$PVM_ROOT" in
+	x)	echo archmk: PVM_ROOT is not defined
+		exit 1;;
+esac
+
+
+# determine machine architecture type (PVM_ARCH)
+
+if [ \! -f $PVM_ROOT/lib/pvmgetarch ]
+then	echo archmk: can not locate pvmgetarch - PVM_ROOT is suspect
+	exit 1
+fi
+
+
+case "x$PVM_ARCH" in
+	x | xUNKNOWN)	PVM_ARCH="`$PVM_ROOT/lib/pvmgetarch`";;
+esac
+
+
+case "x$PVM_ARCH" in
+	xUNKNOWN)	echo archmk: unable to determine machine architecture
+			exit 1;;
+esac
+
+
+if [ \! -f $PVM_ROOT/conf/$PVM_ARCH.def ]
+then	echo archmk: $PVM_ARCH is not a supported architecture
+	exit 1
+fi
+
+
+export PVM_ARCH
+export PVM_ROOT
+
+
+# create a subdirectory for architecture specific object files
+
+if [ \! -d $PVM_ARCH ]
+then	mkdir $PVM_ARCH
+fi
+
+
+# execute make in architecture subdirectory
+
+cd $PVM_ARCH
+
+echo archmk: making in `pwd`
+
+exec make -f $PVM_ROOT/conf/$PVM_ARCH.def -f ../Makefile.archmk "$@"

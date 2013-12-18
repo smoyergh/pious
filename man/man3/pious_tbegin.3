@@ -1,0 +1,60 @@
+.TH pious_tbegin 3PIOUS "25 January 1995" " " "PIOUS"
+.SH NAME
+pious_tbegin \- begin a user-transaction
+
+.SH SYNOPSIS C
+int pious_tbegin(int faultmode);
+
+.SH SYNOPSIS FORTRAN
+subroutine piousftbegin(faultmode, rc)
+
+integer faultmode, rc
+
+.SH DESCRIPTION
+pious_tbegin() marks the beginning of a user-transaction.  All read, write,
+and seek
+accesses performed after a successful pious_tbegin() and prior to a
+pious_tend() or pious_tabort() are atomic with respect to concurrency.
+Any number of files can be accessed within the context of a user-transaction,
+and any PIOUS function can be called, though certain actions may be denied.
+
+The user-transaction fault tolerance mode is specified by the argument
+.I faultmode
+as either PIOUS_STABLE or PIOUS_VOLATILE.
+PIOUS_STABLE guarantees file consistency in the event of a system failure;
+PIOUS_VOLATILE does not.
+Presently, only PIOUS_VOLATILE is supported.
+
+Note that within the context of a user-transaction, the fault tolerance
+mode of any file accessed, as specified by pious_open(), must be the same as
+that of the user-transaction.
+
+The corresponding Fortran function accepts argument values of type integer,
+and returns the result code in
+.I rc.
+
+
+.SH RETURN VALUES
+Upon successful completion, a value of PIOUS_OK (0) is returned.
+Otherwise, a negative value is returned indicating an error condition.
+
+.SH ERRORS
+The following error code values can be returned.
+
+.TP
+PIOUS_EINVAL
+invalid
+.I faultmode
+argument
+
+.TP
+PIOUS_EPERM
+user-transaction already in progress
+
+.TP
+PIOUS_EUNXP
+unexpected error condition encountered
+
+.SH SEE ALSO
+pious_tabort(3PIOUS), pious_tend(3PIOUS), pious_open(3PIOUS),
+pious_read(3PIOUS), pious_write(3PIOUS), pious_lseek(3PIOUS)

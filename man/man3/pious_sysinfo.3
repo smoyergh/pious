@@ -1,0 +1,80 @@
+.TH pious_sysinfo 3PIOUS "25 January 1995" " " "PIOUS"
+.SH NAME
+pious_sysinfo \- query system configuration/status
+
+.SH SYNOPSIS C
+long pious_sysinfo(int name);
+
+.SH SYNOPSIS FORTRAN
+subroutine piousfsysinfo(name, rc)
+
+integer name, rc
+
+.SH DESCRIPTION
+pious_sysinfo() returns the system configuration/status information indicated
+by
+.I name.
+
+The corresponding Fortran function accepts argument values of type integer,
+and returns the result code in
+.I rc.
+
+Valid system parameters to query include:
+
+.TP
+PIOUS_DS_DFLT
+number of default data servers
+
+.TP
+PIOUS_OPEN_MAX
+maximum number of open file descriptors for a given process
+
+.TP
+PIOUS_TAG_LOW
+lower bound of message tag range reserved for system
+
+.TP
+PIOUS_TAG_HIGH
+upper bound of message tag range reserved for system
+
+.TP
+PIOUS_BADSTATE
+true (1) if system state inconsistent, false (0) otherwise
+
+.PP
+
+Note that the reserved message tag range is only of interest in
+metacomputing environments that do not support message contexts, such
+as PVM.
+
+
+.SH RETURN VALUES
+Upon successful completion, a non-negative integer representing the system
+parameter value is returned.
+Otherwise, a negative value is returned indicating an error condition.
+
+.SH ERRORS
+The following error code values can be returned.
+
+
+.TP
+PIOUS_EINVAL
+invalid
+.I name
+argument
+
+
+.TP
+PIOUS_EINSUF
+insufficient system resources to complete operation
+
+.TP
+PIOUS_ETPORT
+error condition in underlying transport system
+
+.TP
+PIOUS_EUNXP
+unexpected error condition encountered
+
+.SH SEE ALSO
+pious_fstat(3PIOUS)

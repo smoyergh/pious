@@ -1,0 +1,57 @@
+# PIOUS Miscellaneous Functions: make file
+#
+# @(#)Makefile.archmk	2.2  28 Apr 1995  Moyer
+#
+# Generic makefile to be executed in architecture-specific subdirectory.
+# Presumes that PVM_ROOT, PVM_ARCH, ARCHLIB, and HASRANLIB have been defined
+# and that any compilation flags are passed via the variable MKFLAGS
+#
+#   PVM_ROOT  - PVM root directory
+#   PVM_ARCH  - PVM name for architecture
+#   ARCHLIB   - architecture-specific link libraries
+#   HASRANLIB - indicates if system has ranlib; 't' or 'f'
+#
+# Note: lint target is an exception; has own flags and is meant to be executed
+#       in source directory only.
+
+
+
+
+# Include Directories
+ALLSRC = ../..
+
+CPINCL = -I$(ALLSRC)/misc -I$(ALLSRC)/include -I$(ALLSRC)/psys
+LTINCL = -I../include -I../psys
+
+
+# Local source/object/lint files
+LSRCS = gputil.c
+
+LOBJS = $(LSRCS:.c=.o)
+
+LLNTS = $(LSRCS:.c=.ln)
+
+
+# Major target definitions
+all: $(LOBJS)
+
+lint: LTFORCE $(LLNTS)
+	echo lint $(LINTFLAGS) $(LLNTS) >> lint.out
+	lint $(LINTFLAGS) $(LLNTS) >> lint.out
+
+$(LLNTS):
+	echo lint $(LINTFLAGS) $(LTINCL) -c $< >> lint.out
+	lint $(LINTFLAGS) $(LTINCL) -c $< >> lint.out
+
+LTFORCE:
+	- rm -f lint.out
+
+clean:
+	- rm -f *.o
+
+
+# Object target definitions
+gputil.o: $(ALLSRC)/misc/gputil.c $(ALLSRC)/misc/gputil.h \
+	$(ALLSRC)/include/pious_errno.h $(ALLSRC)/include/pious_types.h \
+	$(ALLSRC)/psys/psys.h
+	$(CC) $(MKFLAGS) $(CPINCL) -c $(ALLSRC)/misc/gputil.c

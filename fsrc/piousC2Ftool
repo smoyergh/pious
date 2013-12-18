@@ -1,0 +1,125 @@
+#!/bin/sh
+#
+# PIOUS: Fortran header file generation script
+#
+# Usage: piousC2Ftool Fhfile Chfile...
+#
+# Extract all defined numeric constants from C header files and define in a
+# single Fortran header file.
+#
+# Note: All numeric constants are presumed to be integers
+#
+# @(#)piousC2Ftool	2.2  28 Apr 1995 Moyer
+#
+
+
+# check for correct number of arguments
+
+if [ $# -lt 2 ]
+then	echo Usage: piousC2Ftool Fhfile Chfile...
+	exit 1
+fi
+
+# validate header arguments
+
+Fhfile=$1
+
+shift
+
+for Chfile
+do
+	if [ \! -r $Chfile ]
+	then
+		echo piousC2Ftool: can not access file $Chfile
+		exit 1
+	fi
+done
+
+# delete previous Fhfile, if extant
+
+rm -f $Fhfile
+
+
+# output file header
+
+cat - >> $Fhfile <<!
+C PIOUS1 Parallel Input/OUtput System
+C Copyright (C) 1994,1995 by Steven A. Moyer and V. S. Sunderam
+C
+C PIOUS1 is a software system distributed under the terms of the
+C GNU Library General Public License Version 2.  All PIOUS1 software,
+C including PIOUS1 code that is not intended to be directly linked with
+C non PIOUS1 code, is considered to be part of a single logical software
+C library for the purposes of licensing and distribution.
+C
+C This library is free software; you can redistribute it and/or
+C modify it under the terms of the GNU Library General Public
+C License Version 2 as published by the Free Software Foundation.
+C
+C This library is distributed in the hope that it will be useful,
+C but WITHOUT ANY WARRANTY; without even the implied warranty of
+C MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+C Library General Public License for more details.
+C
+C You should have received a copy of the GNU Library General Public
+C License along with this library; if not, write to the Free
+C Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+
+C -------------------------------------------------------------
+C
+C Fortran header file automatically generated from the relevant
+C PIOUS C header files.
+C
+C -------------------------------------------------------------
+
+!
+
+# perform declaration pass over C header files
+
+cat - >> $Fhfile <<!
+C     -----------------------------------------------------
+C     Declare constants extracted from PIOUS C header files
+C     -----------------------------------------------------
+
+!
+
+for Chfile
+do
+	awk '{ if (NF >= 3 && $1 == "#define" && $3 ~ /^[0-9+-]/)
+                 {
+                   printf "      INTEGER %s\n", $2
+                 }
+             }' $Chfile >> $Fhfile
+done
+
+
+# perform definition pass over C header files
+
+cat - >> $Fhfile <<!
+
+C     ----------------------------------------------------
+C     Define constants extracted from PIOUS C header files
+C     ----------------------------------------------------
+
+!
+
+for Chfile
+do
+	awk '{ if (NF >= 3 && $1 == "#define" && $3 ~ /^[0-9+-]/)
+                 {
+                   print $2
+                   print $3
+                 }
+             }' $Chfile |
+
+	xo2d |
+
+	awk '{ pname = $1
+               getline
+               pval  = $1
+               printf "      PARAMETER( %-20s = %s )\n", pname, pval
+             }' >> $Fhfile
+done
+
+exit 0

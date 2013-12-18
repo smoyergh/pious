@@ -1,0 +1,113 @@
+.TH pious_write 3PIOUS "25 January 1995" " " "PIOUS"
+.SH NAME
+pious_write \- write to a file
+
+.SH SYNOPSIS C
+pious_ssizet pious_write(int fd, char *buf, pious_sizet nbyte);
+
+pious_ssizet pious_owrite(int fd, char *buf, pious_sizet nbyte,
+pious_offt *offset);
+
+pious_ssizet pious_pwrite(int fd, char *buf, pious_sizet nbyte,
+pious_offt offset);
+
+.SH SYNOPSIS FORTRAN
+subroutine piousfwrite(fd, buf, nbyte, rc)
+
+subroutine piousfowrite(fd, buf, nbyte, offset, rc)
+
+subroutine piousfpwrite(fd, buf, nbyte, offset, rc)
+
+integer fd, nbyte, offset, rc
+
+FortranType buf(*)
+
+
+.SH DESCRIPTION
+pious_write() attempts to write
+.I nbyte
+bytes to the file associated with the open file descriptor
+.I fd
+from the buffer
+.I buf.
+Starting offset is determined by the file pointer associated with
+.I fd.
+Upon successful completion, the file pointer is incremented by the number of
+bytes actually written.
+
+pious_owrite() performs the same action as pious_write(), and returns the
+starting offset, as determined by the file pointer, in
+.I offset.
+
+pious_pwrite() performs the same action as pious_write() except that the
+starting offset is determined by
+.I offset;
+the file pointer associated with
+.I fd
+remains unaffected.
+
+Corresponding Fortran functions accept argument values of type integer,
+except
+.I buf
+which is an array of any data type,
+and return the result code in
+.I rc.
+
+Any error in writing implies that the access, and associated user-transaction
+if any, is aborted or that the PIOUS system state is inconsistent.
+
+Note that the contents of the file is undefined from the byte immediately
+following the last byte written up to the byte position intended for the
+last byte of the write request.
+
+
+
+.SH RETURN VALUES
+Upon successful completion, a non-negative value indicating the number
+of bytes written is returned.
+Otherwise, a negative value is returned indicating an error condition.
+
+.SH ERRORS
+The following error code values can be returned.
+
+.TP
+PIOUS_EBADF
+.I fd
+is not a valid descriptor open for writing
+
+.TP
+PIOUS_EINVAL
+.I offset,
+.I nbyte,
+or
+.I buf
+argument not a proper value or exceeds system constraints
+
+.TP
+PIOUS_EPERM
+file and user-transaction faultmode inconsistent
+
+.TP
+PIOUS_EABORT
+access/user-transaction aborted normally
+
+.TP
+PIOUS_EINSUF
+insufficient system resources to complete operation
+
+.TP
+PIOUS_ETPORT
+error condition in underlying transport system
+
+.TP
+PIOUS_EUNXP
+unexpected error condition encountered
+
+.TP
+PIOUS_EFATAL
+fatal error; check data server error logs
+
+.SH SEE ALSO
+pious_open(3PIOUS), pious_lseek(3PIOUS),
+pious_tbegin(3PIOUS), pious_tabort(3PIOUS),
+pious_sysinfo(3PIOUS)

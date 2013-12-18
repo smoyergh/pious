@@ -1,0 +1,121 @@
+# PIOUS Service Coordinator (PSC): make file
+#
+# @(#)Makefile.archmk	2.2  28 Apr 1995  Moyer
+#
+# Generic makefile to be executed in architecture-specific subdirectory.
+# Presumes that PVM_ROOT, PVM_ARCH, ARCHLIB, and HASRANLIB have been defined
+# and that any compilation flags are passed via the variable MKFLAGS
+#
+#   PVM_ROOT  - PVM root directory
+#   PVM_ARCH  - PVM name for architecture
+#   ARCHLIB   - architecture-specific link libraries
+#   HASRANLIB - indicates if system has ranlib; 't' or 'f'
+#
+# Note: lint target is an exception; has own flags and is meant to be executed
+#       in source directory only.
+
+
+
+
+# Include Directories
+ALLSRC = ../..
+ALLOBJ = ../..
+
+CPINCL = -I$(ALLSRC)/psc -I$(ALLSRC)/include -I$(ALLSRC)/config \
+	-I$(ALLSRC)/misc -I$(ALLSRC)/pdce -I$(ALLSRC)/pds -I$(ALLSRC)/psys
+
+LTINCL = -I../include -I../config -I../misc -I../pdce -I../pds -I../psys
+
+
+# Local source/object/lint files
+LSRCS =	psc_cfparse.c psc_daemon.c psc_dataserver_manager.c \
+	psc_msg_exchange.c
+
+LOBJS = $(LSRCS:.c=.o)
+
+LLNTS = $(LSRCS:.c=.ln) psc.ln
+
+
+# Imported object files
+IOBJS = $(ALLOBJ)/pdce/$(PVM_ARCH)/pdce.o \
+	$(ALLOBJ)/pds/$(PVM_ARCH)/pds.o \
+	$(ALLOBJ)/pds/$(PVM_ARCH)/pds_msg_exchange.o \
+	$(ALLOBJ)/pds/$(PVM_ARCH)/pds_transidt.o \
+	$(ALLOBJ)/misc/$(PVM_ARCH)/gputil.o \
+	$(ALLOBJ)/psys/$(PVM_ARCH)/psys.o
+
+
+# Major target definitions
+all: psc_daemon psc.o
+
+lint: LTFORCE $(LLNTS)
+	echo lint $(LINTFLAGS) $(LLNTS) >> lint.out
+	lint $(LINTFLAGS) $(LLNTS) >> lint.out
+
+$(LLNTS):
+	echo lint $(LINTFLAGS) $(LTINCL) -c $< >> lint.out
+	lint $(LINTFLAGS) $(LTINCL) -c $< >> lint.out
+
+LTFORCE:
+	- rm -f lint.out
+
+clean:
+	- rm -f *.o
+
+
+# Daemon and Object target definitions
+psc_daemon: $(LOBJS)
+	$(CC) $(MKFLAGS) $(LOBJS) $(IOBJS) -o psc_daemon \
+	-L$(PVM_ROOT)/lib/$(PVM_ARCH) -lgpvm3 -lpvm3 $(ARCHLIB)
+	mv psc_daemon $(PVM_ROOT)/bin/$(PVM_ARCH)/pious1SC
+
+# psc.o object file NOT required to build PSC daemon; implements RPC interface
+psc.o:	$(ALLSRC)/psc/psc.c $(ALLSRC)/psc/psc.h \
+	$(ALLSRC)/misc/nonansi.h $(ALLSRC)/misc/gpmacro.h \
+	$(ALLSRC)/include/pious_types.h $(ALLSRC)/include/pious_errno.h \
+	$(ALLSRC)/pdce/pdce_srcdestt.h \
+	$(ALLSRC)/pds/pds_transidt.h $(ALLSRC)/pds/pds_fhandlet.h \
+	$(ALLSRC)/psc/psc_msg_exchange.h
+	$(CC) $(MKFLAGS) $(CPINCL) -c $(ALLSRC)/psc/psc.c
+
+psc_cfparse.o: $(ALLSRC)/psc/psc_cfparse.c $(ALLSRC)/psc/psc_cfparse.h \
+	$(ALLSRC)/misc/nonansi.h $(ALLSRC)/misc/gpmacro.h \
+	$(ALLSRC)/include/pious_errno.h \
+	$(ALLSRC)/config/pious_sysconfig.h
+	$(CC) $(MKFLAGS) $(CPINCL) -c $(ALLSRC)/psc/psc_cfparse.c
+
+psc_dataserver_manager.o: $(ALLSRC)/psc/psc_dataserver_manager.c \
+	$(ALLSRC)/psc/psc_dataserver_manager.h \
+	$(ALLSRC)/misc/nonansi.h $(ALLSRC)/misc/gpmacro.h \
+	$(ALLSRC)/include/pious_errno.h $(ALLSRC)/include/pious_types.h \
+	$(ALLSRC)/pdce/pdce_msgtagt.h $(ALLSRC)/pdce/pdce_srcdestt.h \
+	$(ALLSRC)/pdce/pdce.h \
+	$(ALLSRC)/pds/pds.h $(ALLSRC)/pds/pds_fhandlet.h \
+	$(ALLSRC)/pds/pds_transidt.h \
+	$(ALLSRC)/config/pious_sysconfig.h \
+	$(ALLSRC)/psc/psc_cmsgidt.h
+	$(CC) $(MKFLAGS) $(CPINCL) -c $(ALLSRC)/psc/psc_dataserver_manager.c
+
+psc_daemon.o: $(ALLSRC)/psc/psc_daemon.c \
+	$(ALLSRC)/misc/nonansi.h $(ALLSRC)/misc/gpmacro.h \
+	$(ALLSRC)/misc/gputil.h \
+	$(ALLSRC)/include/pious_types.h $(ALLSRC)/include/pious_errno.h \
+	$(ALLSRC)/include/pious_std.h \
+	$(ALLSRC)/config/pious_sysconfig.h \
+	$(ALLSRC)/pdce/pdce_srcdestt.h $(ALLSRC)/pdce/pdce.h \
+	$(ALLSRC)/pdce/pdce_msgtagt.h \
+	$(ALLSRC)/pds/pds_transidt.h $(ALLSRC)/pds/pds_fhandlet.h \
+	$(ALLSRC)/pds/pds.h \
+	$(ALLSRC)/psc/psc_cmsgidt.h $(ALLSRC)/psc/psc_cfparse.h \
+	$(ALLSRC)/psc/psc_dataserver_manager.h $(ALLSRC)/psc/psc_msg_exchange.h
+	$(CC) $(MKFLAGS) $(CPINCL) -c $(ALLSRC)/psc/psc_daemon.c
+
+psc_msg_exchange.o: $(ALLSRC)/psc/psc_msg_exchange.c \
+	$(ALLSRC)/psc/psc_msg_exchange.h \
+	$(ALLSRC)/misc/nonansi.h $(ALLSRC)/misc/gpmacro.h \
+	$(ALLSRC)/include/pious_types.h $(ALLSRC)/include/pious_errno.h \
+	$(ALLSRC)/pds/pds_transidt.h $(ALLSRC)/pds/pds_fhandlet.h \
+	$(ALLSRC)/pdce/pdce_srcdestt.h $(ALLSRC)/pdce/pdce_msgtagt.h \
+	$(ALLSRC)/pdce/pdce.h \
+	$(ALLSRC)/config/pious_sysconfig.h
+	$(CC) $(MKFLAGS) $(CPINCL) -c $(ALLSRC)/psc/psc_msg_exchange.c

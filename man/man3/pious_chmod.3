@@ -1,0 +1,108 @@
+.TH pious_chmod 3PIOUS "25 January 1995" " " "PIOUS"
+.SH NAME
+pious_chmod \- set the file permission bits
+
+.SH SYNOPSIS C
+int pious_chmod(char *path, pious_modet mode);
+
+int pious_schmod(struct pious_dsvec *dsv, int dsvcnt,
+char *path, pious_modet mode);
+
+.SH SYNOPSIS FORTRAN
+subroutine piousfchmod(path, mode, rc)
+
+subroutine piousfschmod(hname, spath, lpath, dsvcnt, path, mode, rc)
+
+integer dsvcnt, mode, rc
+
+character*(*) hname, spath, lpath, path
+
+.SH DESCRIPTION
+pious_chmod() sets the permission bits of regular file
+.I path,
+declustered on the default data servers, to the value specified by
+.I mode.
+
+pious_schmod() performs the same action as pious_chmod(), except that
+the data servers on which the file is declustered are specified by the
+.I dsvcnt
+element vector
+.I dsv.
+
+Corresponding Fortran functions accept argument values of type integer
+and character, as required, and return the result code in
+.I rc.
+In specifying a set of data servers,
+.I hname, spath,
+and
+.I lpath
+take the place of the C structure
+.I dsv.
+
+See pious_open() for a discussion on valid values for arguments
+.I mode
+and
+.I dsv (hname, spath, lpath).
+
+Note that pious_chmod() operates on regular PIOUS files only.
+To set the permission bits of a directory file use
+pious_chmoddir().
+
+
+.SH RETURN VALUES
+Upon successful completion, a value of PIOUS_OK (0) is returned.
+Otherwise, a negative value is returned indicating an error condition.
+
+.SH ERRORS
+The following error code values can be returned.
+
+.TP
+PIOUS_EINVAL
+invalid argument value, or no data server executable on host
+
+.TP
+PIOUS_EACCES
+path prefix search permission denied
+
+.TP
+PIOUS_ENOENT
+file does not exist on data servers or
+.I path
+is the empty string
+
+.TP
+PIOUS_EBUSY
+file in use; operation denied
+
+.TP
+PIOUS_ENAMETOOLONG
+path or path component name too long
+
+.TP
+PIOUS_ENOTDIR
+a component of the path prefix is not a directory
+
+.TP
+PIOUS_EPERM
+insufficient privileges to complete operation
+
+.TP
+PIOUS_EINSUF
+insufficient system resources to complete operation
+
+.TP
+PIOUS_ETPORT
+error condition in underlying transport system
+
+.TP
+PIOUS_EUNXP
+unexpected error condition encountered
+
+.TP
+PIOUS_EFATAL
+fatal error; check data server error logs
+
+
+
+.SH SEE ALSO
+pious_open(3PIOUS), pious_chmoddir(3PIOUS)

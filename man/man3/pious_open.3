@@ -1,0 +1,312 @@
+.TH pious_open 3PIOUS "25 January 1995" " " "PIOUS"
+.SH NAME
+pious_open \- open a file for access
+
+.SH SYNOPSIS C
+int pious_popen(char *group, char *path, int view, pious_sizet map,
+int faultmode, int oflag, pious_modet mode, int seg);
+
+int pious_spopen(struct pious_dsvec *dsv, int dsvcnt,
+char *group, char *path, int view, pious_sizet map,
+int faultmode, int oflag, pious_modet mode, int seg);
+
+int pious_open(char *path, int oflag, pious_modet mode);
+
+int pious_sopen(struct pious_dsvec *dsv, int dsvcnt,
+char *path, int oflag, pious_modet mode);
+
+.SH SYNOPSIS FORTRAN
+subroutine piousfpopen(group, path, view, map, faultmode, oflag, mode, seg, rc)
+
+subroutine piousfspopen(hname, spath, lpath, dsvcnt, group, path, view, map,
+faultmode, oflag, mode, seg, rc)
+
+subroutine piousfopen(path, oflag, mode, rc)
+
+subroutine piousfsopen(hname, spath, lpath, dsvcnt, path, oflag, mode, rc)
+
+integer dsvcnt, view, map, faultmode, oflag, mode, seg, rc
+
+character*(*) hname, spath, lpath, group, path
+
+
+.SH DESCRIPTION
+pious_popen() opens a file descriptor for file
+.I path,
+declustered on the default data servers, for the process
+in group
+.I group.
+The file is opened for access with view
+.I view,
+access mapping
+.I map,
+fault tolerance mode
+.I faultmode,
+and an access mode determined by
+.I oflag.
+If the file does not exist and
+.I oflag
+specifies file creation, then a file with
+.I seg
+data segments is created, with permission (access control) bits set
+according to
+.I mode.
+If the file exists and
+.I oflag
+indicates truncation, then all data segments in the file are truncated if
+the process is the first (regardless of group) to open the file.
+
+pious_spopen() performs the same action as pious_popen(), except that
+the data servers on which the file is declustered are specified by the
+.I dsvcnt
+element vector
+.I dsv.
+
+pious_open() is equivalent to
+pious_popen(group, path, PIOUS_INDEPENDENT, 1, PIOUS_VOLATILE, oflag,
+mode, seg), where
+.I group
+is a system supplied unique group name and
+.I seg
+is equal to the number of default data servers.
+
+pious_sopen() performs the same action as pious_open(), except that
+the data servers on which the file is declustered are specified by the
+.I dsvcnt
+element vector
+.I dsv.
+
+Corresponding Fortran functions accept argument values of type integer
+and character, as required, and return the result code in
+.I rc.
+In specifying a set of data servers,
+.I hname, spath,
+and
+.I lpath
+take the place of the C structure
+.I dsv.
+
+
+The PIOUS API defines two-dimensional file objects.  Each PIOUS file
+is composed of one or more physically disjoint data segments, where
+each data segment is a linear sequence of zero or more bytes.  The
+number of data segments in a file is specified at the time of creation
+and does not change for the life of the file.
+
+The argument
+.I view
+specifies one of the three supported file views: PIOUS_INDEPENDENT,
+PIOUS_GLOBAL, and PIOUS_SEGMENTED.
+In both the independent and global views, a file appears as a linear sequence
+of data bytes; in the independent view each process maintains a local file
+pointer, and in the global view all processes in a group share a single
+file pointer.
+In the segmented view, the segmented (two-dimensional) nature of the file
+is exposed; each process accesses a specified segment via a local pointer.
+
+For the global and independent file views, a linear sequence of bytes
+is defined by ordering the bytes in a file by fixed size blocks taken
+round-robin from each segment; i.e. data is striped across segments.
+The stripe unit size, in bytes, is specified via the
+.I map
+argument.
+
+For the segmented view, the argument
+.I map
+specifies the particular data segment that the process is to access.
+Data segments are number starting from zero (0).
+
+Note that a PIOUS file view only defines an access mapping and does not
+alter the physical representation.  Thus a file can always be opened
+with any view, though all processes in a group must use the same view.
+
+PIOUS provides linearizable (and hence sequentially consistent) access
+to files opened under
+any view, guaranteeing that both data access and file pointer update are
+atomic with respect to concurrency.
+
+The file fault tolerance mode is specified by the argument
+.I faultmode
+as either PIOUS_STABLE or PIOUS_VOLATILE.
+PIOUS_STABLE guarantees file consistency in the event of a system failure;
+PIOUS_VOLATILE does not.
+Presently, only PIOUS_VOLATILE is supported.
+
+The
+.I oflag
+argument determines the file access mode and is the bitwise inclusive
+OR (addition in Fortran) of exactly one of PIOUS_RDONLY (read-only),
+PIOUS_WRONLY (write-only),
+or PIOUS_RDWR (read-write), and any combination of PIOUS_CREAT (create file)
+and PIOUS_TRUNC (truncate file).
+In specifying
+.I oflag
+for Fortran functions, each constant must appear at most once.
+
+The argument
+.I mode
+sets the file permission (access control) bits at the time a file is created,
+and is specified as the bitwise inclusive OR (addition in Fortran) of any of:
+PIOUS_IRUSR, PIOUS_IWUSR, PIOUS_IXUSR, PIOUS_IRWXU,
+PIOUS_IRGRP, PIOUS_IWGRP, PIOUS_IXGRP, PIOUS_IRWXG,
+PIOUS_IROTH, PIOUS_IWOTH, PIOUS_IXOTH, PIOUS_IRWXO.
+In specifying
+.I mode
+for Fortran functions, each constant must appear at most once, and the
+constants PIOUS_IRWX* must not be used with other constants from the
+same group; e.g. (PIOUS_IRWXU + PIOUS_IRUSR) is invalid.
+File permission bits have identical meaning to the similarly named
+POSIX.1 file permission bits.
+
+
+The number of data segments in a file is specified at creation time via
+the argument
+.I seg.
+PIOUS declusters a file, thus permitting parallel file access, by mapping
+file data segments to data servers in a round-robin fashion.
+Note that if the number of file data segments is a multiple of the number
+of data servers on which the file is declustered, then a linear view of
+the file results in an access pattern that is equivalent to traditional
+disk striping.
+
+Finally, the functions pious_spopen() and pious_sopen() allow an application
+to directly specify the set of data servers on which a file is declustered
+via the
+.I dsv
+argument.
+Each of the
+.I dsvcnt
+elements of the
+.I dsv
+array provides the specification for a single data server via
+the structure members:
+.TP
+.I char *hname
+host name string
+.TP
+.I char *spath
+search root path string
+.TP
+.I char *lpath
+log directory path string
+
+.PP
+Entries in
+.I dsv
+are checked to insure that no duplicate hosts are specified,
+that no host name is null, and that all host search root and log
+directory paths are non-empty with '/' as the first character.
+A data server will be automatically spawned on each host that does not
+already have a data server executing.
+
+In specifying a set of data servers for Fortran functions, the character
+variables
+.I hname, spath,
+and
+.I lpath
+take the place of the C structure
+.I dsv.
+.I Hname
+consists of a set of
+.I dsvcnt
+consecutive substrings, each of length PIOUS_NAME_MAX, defining host names.
+.I Spath
+and
+.I lpath
+each consist of a set of
+.I dsvcnt
+consecutive substrings, of length PIOUS_PATH_MAX, defining search root and
+log directory paths, respectively.  Corresponding entries in
+.I hname, spath,
+and
+.I lpath
+form the specification for a single data server; e.g. the first data
+server specification in the set is hname(1:PIOUS_NAME_MAX),
+spath(1:PIOUS_PATH_MAX), and lpath(1:PIOUS_PATH_MAX).
+For simplicity,
+.I hname, spath,
+and
+.I lpath
+can be defined as equivalent to character arrays of the proper length
+character elements.
+
+Because PIOUS files are segmented and declustered, a system failure
+or unexpected denial of access during an open-create operation can
+result in a partial file remaining.  PIOUS recognizes partial files
+and treats them as not extant.  The remains
+of a partial file can be removed by simply unlinking the file via
+pious_unlink() or pious_sunlink(), as appropriate.
+
+
+.SH RETURN VALUES
+Upon successful completion, a non-negative file descriptor is returned.
+Otherwise, a negative value is returned indicating an error condition.
+
+.SH ERRORS
+The following error code values can be returned.
+
+.TP
+PIOUS_EINVAL
+invalid argument value, or PIOUS_TRUNC specified with PIOUS_RDONLY,
+or file does not exist and PIOUS_CREAT specified with an access
+mode not allowed by the permission bits, or no data server executable
+on host
+
+
+.TP
+PIOUS_EACCES
+path prefix search permission denied, or file exists and
+.I oflag
+access mode denied or
+.I view
+or
+.I faultmode
+inconsistent, or file does not exist and write permission to create denied
+
+
+.TP
+PIOUS_ENAMETOOLONG
+path or path component name too long
+
+.TP
+PIOUS_ENOTDIR
+a component of the path prefix is not a directory
+
+.TP
+PIOUS_ENOENT
+file does not exist on data servers and create not specified or
+.I path
+is the empty string
+
+.TP
+PIOUS_EPERM
+create operation not permitted due to
+.I path
+conflict on one or more data servers
+
+.TP
+PIOUS_ENOSPC
+no space to extend directory or file system
+
+.TP
+PIOUS_EINSUF
+file table full, or too many groups with file open, or too many processes in
+group, or insufficient system resources to complete operation
+
+.TP
+PIOUS_ETPORT
+error condition in underlying transport system
+
+.TP
+PIOUS_EUNXP
+unexpected error condition encountered
+
+.TP
+PIOUS_EFATAL
+fatal error; check data server error logs
+
+
+
+.SH SEE ALSO
+pious_close(3PIOUS), pious_read(3PIOUS), pious_write(3PIOUS),
+pious_lseek(3PIOUS)

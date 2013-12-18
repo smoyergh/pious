@@ -1,0 +1,50 @@
+.TH pious_close 3PIOUS "25 January 1995" " " "PIOUS"
+.SH NAME
+pious_close \- close a file
+
+.SH SYNOPSIS C
+int pious_close(int fd);
+
+.SH SYNOPSIS FORTRAN
+subroutine piousfclose(fd, rc)
+
+integer fd, rc
+
+.SH DESCRIPTION
+pious_close() closes the file associated with open file descriptor
+.I fd.
+
+The corresponding Fortran function accepts argument values of type integer,
+and returns the result code in
+.I rc.
+
+
+.SH RETURN VALUES
+Upon successful completion, a value of PIOUS_OK (0) is returned.
+Otherwise, a negative value is returned indicating an error condition.
+
+.SH ERRORS
+The following error code values can be returned.
+
+.TP
+PIOUS_EBADF
+invalid file descriptor
+
+.TP
+PIOUS_EPERM
+file accessed in active user-transaction; close not permitted
+
+.TP
+PIOUS_EINSUF
+insufficient system resources to complete operation
+
+.TP
+PIOUS_ETPORT
+error condition in underlying transport system
+
+.TP
+PIOUS_EUNXP
+unexpected error condition encountered
+
+.SH SEE ALSO
+pious_open(3PIOUS)

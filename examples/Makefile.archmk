@@ -1,0 +1,109 @@
+# PIOUS example programs: make file
+#
+# Generic makefile to be executed in architecture-specific subdirectory.
+# Presumes that PVM_ROOT, PVM_ARCH, and ARCHLIB have been defined
+# and that any compilation flags are passed via the variable MKFLAGS.
+#
+#   PVM_ROOT  - PVM root directory
+#   PVM_ARCH  - PVM name for architecture
+#   ARCHLIB   - architecture-specific link libraries
+#
+# @(#)Makefile.archmk	2.2  28 Apr 1995  Moyer
+#
+
+
+
+
+# default Fortran compiler
+#
+#   HPPA:    F77 = fort77
+#   RS6K:    F77 = f77 -qcharlen=16384
+#   default: F77 = f77
+F77 = f77
+
+
+# Include Directories
+XMPLSRC  = ..
+FSRC     = ../../fsrc
+PIOUSSRC = ../../src
+PIOUSOBJ = ../../src
+
+# m4 configuration files
+M4CONF = $(PVM_ROOT)/conf/$(PVM_ARCH).m4
+M4     = m4
+
+
+
+
+all: rdwr qtest frdwr flibtest
+	rm -f fpvm3.h fpious1.h
+
+
+rdwr: rdwr.o
+	$(CC) $(MKFLAGS) rdwr.o -o rdwr \
+	-L$(PVM_ROOT)/lib/$(PVM_ARCH) -lpious1 -lgpvm3 -lpvm3 $(ARCHLIB)
+	mv rdwr $(PVM_ROOT)/bin/$(PVM_ARCH)
+
+
+qtest: qtest.o
+	$(CC) $(MKFLAGS) qtest.o $(PIOUSOBJ)/psc/$(PVM_ARCH)/psc_cfparse.o \
+	-o qtest \
+	-L$(PVM_ROOT)/lib/$(PVM_ARCH) -lpious1 -lgpvm3 -lpvm3 $(ARCHLIB)
+	mv qtest $(PVM_ROOT)/bin/$(PVM_ARCH)
+
+frdwr: frdwr.o
+	$(F77) $(MKFLAGS) frdwr.o -o frdwr \
+	-L$(PVM_ROOT)/lib/$(PVM_ARCH) -lfpious1 -lpious1 \
+	-lgpvm3 -lfpvm3 -lpvm3 $(ARCHLIB)
+	mv frdwr $(PVM_ROOT)/bin/$(PVM_ARCH)
+
+flibtest: flibtest.o fltparse.o
+	$(F77) $(MKFLAGS) flibtest.o fltparse.o \
+	$(FSRC)/$(PVM_ARCH)/fcstrcnvt.o \
+	$(PIOUSOBJ)/psc/$(PVM_ARCH)/psc_cfparse.o -o flibtest \
+	-L$(PVM_ROOT)/lib/$(PVM_ARCH) -lfpious1 -lpious1 \
+	-lgpvm3 -lfpvm3 -lpvm3 $(ARCHLIB)
+	mv flibtest $(PVM_ROOT)/bin/$(PVM_ARCH)
+
+
+
+
+rdwr.o: FORCE
+	$(CC) $(MKFLAGS) -I$(PVM_ROOT)/include -c $(XMPLSRC)/rdwr.c
+
+qtest.o: FORCE
+	$(CC) $(MKFLAGS) -I$(PVM_ROOT)/include -I$(PIOUSSRC)/psc \
+	-I$(PIOUSSRC)/misc -c $(XMPLSRC)/qtest.c
+
+frdwr.o: fpvm3.h fpious1.h FORCE
+	rm -f frdwr.f
+	cp $(XMPLSRC)/frdwr.f .
+	$(F77) $(MKFLAGS) -c frdwr.f
+	rm -f frdwr.f
+
+flibtest.o: fpvm3.h fpious1.h FORCE
+	rm -f flibtest.f
+	cp $(XMPLSRC)/flibtest.f .
+	$(F77) $(MKFLAGS) -c flibtest.f
+	rm -f flibtest.f
+
+
+
+fltparse.o: FORCE
+	rm -f fltparse.c
+	$(M4) $(M4CONF) $(XMPLSRC)/fltparse.m4 > fltparse.c
+	$(CC) $(MKFLAGS) -I$(PIOUSSRC)/include -I$(PIOUSSRC)/psc \
+	-I$(FSRC) -c fltparse.c
+	rm -f fltparse.c
+
+
+fpvm3.h: $(PVM_ROOT)/include/fpvm3.h
+	rm -f fpvm3.h
+	cp $(PVM_ROOT)/include/fpvm3.h .
+
+fpious1.h: $(PVM_ROOT)/include/fpious1.h
+	rm -f fpious1.h
+	cp $(PVM_ROOT)/include/fpious1.h .
+
+
+FORCE:

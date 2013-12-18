@@ -1,0 +1,64 @@
+#!/bin/sh
+#
+# PIOUS: Start Up Script
+#
+# Usage: pious [pious arguments]
+#
+# Verifies that PVM_ROOT is defined and sets PVM_ARCH appropriately.
+# If a PIOUS Service Coordinator executable exists for the host architecture
+# then that executable is started as follows:
+#
+#   pious1SC "$@"
+#
+# August 1994 Moyer
+#
+
+
+# check that $PVM_ROOT has been defined
+
+case "x$PVM_ROOT" in
+	x)	echo pious: PVM_ROOT is not defined
+		exit 1;;
+esac
+
+
+# determine machine architecture type (PVM_ARCH)
+
+if [ \! -f $PVM_ROOT/lib/pvmgetarch ]
+then	echo pious: can not locate pvmgetarch - PVM_ROOT is suspect
+	exit 1
+fi
+
+
+case "x$PVM_ARCH" in
+	x | xUNKNOWN)	PVM_ARCH="`$PVM_ROOT/lib/pvmgetarch`";;
+esac
+
+
+case "x$PVM_ARCH" in
+	xUNKNOWN)	echo pious: unable to determine machine architecture
+			exit 1;;
+esac
+
+
+if [ \! -f $PVM_ROOT/conf/$PVM_ARCH.def ]
+then	echo pious: $PVM_ARCH is not a supported architecture
+	exit 1
+fi
+
+
+export PVM_ARCH
+export PVM_ROOT
+
+
+# determine if PIOUS compiled for this architecture
+
+if [ \! -f $PVM_ROOT/bin/$PVM_ARCH/pious1SC ]
+then	echo pious: PIOUS not compiled for host architecture
+	exit 1
+fi
+
+
+# execute PIOUS service coordinator
+
+exec $PVM_ROOT/bin/$PVM_ARCH/pious1SC "$@"

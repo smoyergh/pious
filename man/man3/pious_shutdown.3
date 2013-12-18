@@ -1,0 +1,55 @@
+.TH pious_shutdown 3PIOUS "25 January 1995" " " "PIOUS"
+.SH NAME
+pious_shutdown \- shutdown PIOUS
+
+.SH SYNOPSIS C
+int pious_shutdown(void);
+
+.SH SYNOPSIS FORTRAN
+subroutine piousfshutdown(rc)
+
+integer rc
+
+.SH DESCRIPTION
+pious_shutdown() requests that PIOUS be shutdown, causing all data servers
+and the service coordinator to complete and exit.
+PIOUS will only shutdown if all files open by all processes have been
+closed.
+
+The corresponding Fortran function accepts argument values of type integer,
+and returns the result code in
+.I rc.
+
+Successful completion of the pious_shutdown() operation does not
+guarantee that the system has been shutdown, only that a shutdown
+request has been successfully issued.
+
+Note that it is not necessary to shutdown PIOUS via pious_shutdown()
+in order to maintain file consistency; this is a clean-up operation
+only.
+
+.SH RETURN VALUES
+Upon successful completion, a value of PIOUS_OK (0) is returned.
+Otherwise, a negative value is returned indicating an error condition.
+
+.SH ERRORS
+The following error code values can be returned.
+
+.TP
+PIOUS_EPERM
+calling process has open files or a user-transaction in progress
+
+.TP
+PIOUS_EINSUF
+insufficient system resources to complete operation
+
+.TP
+PIOUS_ETPORT
+error condition in underlying transport system
+
+.TP
+PIOUS_EUNXP
+unexpected error condition encountered
+
+.SH SEE ALSO
+pious_close(3PIOUS)

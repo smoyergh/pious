@@ -1,0 +1,54 @@
+.TH pious_tend 3PIOUS "25 January 1995" " " "PIOUS"
+.SH NAME
+pious_tend \- end a user-transaction
+
+.SH SYNOPSIS C
+int pious_tend(void);
+
+.SH SYNOPSIS FORTRAN
+subroutine piousftend(rc)
+
+integer rc
+
+.SH DESCRIPTION
+pious_tend() completes a user-transaction.  If successful, all file
+updates are installed atomically, in accordance with the fault tolerance
+mode specified by the corresponding pious_tbegin(), and become visible.
+
+The corresponding Fortran function accepts argument values of type integer,
+and returns the result code in
+.I rc.
+
+Any error implies that the user-transaction is aborted or that the
+PIOUS system state is inconsistent.
+
+.SH RETURN VALUES
+Upon successful completion, a value of PIOUS_OK (0) is returned.
+Otherwise, a negative value is returned indicating an error condition.
+
+.SH ERRORS
+The following error code values can be returned.
+
+.TP
+PIOUS_EABORT
+user-transaction aborted normally
+
+.TP
+PIOUS_EINSUF
+insufficient system resources to complete operation
+
+.TP
+PIOUS_ETPORT
+error condition in underlying transport system
+
+.TP
+PIOUS_EUNXP
+unexpected error condition encountered
+
+.TP
+PIOUS_EFATAL
+fatal error; check data server error logs
+
+
+.SH SEE ALSO
+pious_tbegin(3PIOUS), pious_tabort(3PIOUS), pious_sysinfo(3PIOUS)

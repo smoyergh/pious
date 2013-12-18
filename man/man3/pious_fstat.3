@@ -1,0 +1,58 @@
+.TH pious_fstat 3PIOUS "25 January 1995" " " "PIOUS"
+.SH NAME
+pious_fstat \- query file status
+
+.SH SYNOPSIS C
+int pious_fstat(int fd, struct pious_stat *buf);
+
+.SH SYNOPSIS FORTRAN
+subroutine piousffstat(fd, dscnt, segcnt, rc)
+
+integer fd, dscnt, segcnt, rc
+
+.SH DESCRIPTION
+pious_fstat() returns in buffer
+.I buf
+status information regarding the file associated
+with the open file descriptor
+.I fd.
+
+The contents of the status buffer includes the following members:
+.TP
+.I int dscnt
+the number of data servers on which the file is declustered
+
+.TP
+.I int segcnt
+the number of file data segments
+
+.PP
+
+The corresponding Fortran function accepts argument values of type integer,
+and returns the result code in
+.I rc.
+
+
+.SH RETURN VALUES
+Upon successful completion, a value of PIOUS_OK (0) is returned.
+Otherwise, a negative value is returned indicating an error condition.
+
+.SH ERRORS
+The following error code values can be returned.
+
+.TP
+PIOUS_EBADF
+invalid file descriptor
+
+.TP
+PIOUS_EINVAL
+invalid
+.I buf
+argument
+
+.TP
+PIOUS_EUNXP
+unexpected error condition encountered
+
+.SH SEE ALSO
+pious_open(3PIOUS)

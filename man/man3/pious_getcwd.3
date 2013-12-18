@@ -1,0 +1,46 @@
+.TH pious_getcwd 3PIOUS "25 January 1995" " " "PIOUS"
+.SH NAME
+pious_getcwd \- get the current working directory path
+
+.SH SYNOPSIS C
+int pious_getcwd(char *buf, pious_sizet size);
+
+.SH SYNOPSIS FORTRAN
+subroutine piousfgetcwd(buf, rc)
+
+character*(*) buf
+
+integer rc
+
+.SH DESCRIPTION
+pious_getcwd() copies the current working directory path string into the buffer
+.I buf
+of size
+.I size.
+
+The corresponding Fortran function accepts argument values of type integer
+and character, as required, and returns the result code in
+.I rc.
+
+
+.SH RETURN VALUES
+Upon successful completion, a value of PIOUS_OK (0) is returned.
+Otherwise, a negative value is returned indicating an error condition.
+
+.SH ERRORS
+The following error code values can be returned.
+
+.TP
+PIOUS_EINVAL
+invalid argument value
+
+.TP
+PIOUS_EINSUF
+buffer size is insufficient to hold cwd string
+
+.TP
+PIOUS_EUNXP
+unexpected error condition encountered
+
+.SH SEE ALSO
+pious_setcwd(3PIOUS)

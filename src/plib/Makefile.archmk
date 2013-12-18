@@ -1,0 +1,84 @@
+# PIOUS Library Functions (PLIB): make file
+#
+# @(#)Makefile.archmk	2.2  28 Apr 1995  Moyer
+#
+# Generic makefile to be executed in architecture-specific subdirectory.
+# Presumes that PVM_ROOT, PVM_ARCH, ARCHLIB, and HASRANLIB have been defined
+# and that any compilation flags are passed via the variable MKFLAGS
+#
+#   PVM_ROOT  - PVM root directory
+#   PVM_ARCH  - PVM name for architecture
+#   ARCHLIB   - architecture-specific link libraries
+#   HASRANLIB - indicates if system has ranlib; 't' or 'f'
+#
+# Note: lint target is an exception; has own flags and is meant to be executed
+#       in source directory only.
+
+
+
+
+# Include Directories
+ALLSRC = ../..
+ALLOBJ = ../..
+
+CPINCL = -I$(ALLSRC)/plib -I$(ALLSRC)/include -I$(ALLSRC)/config \
+	-I$(ALLSRC)/misc -I$(ALLSRC)/pdce -I$(ALLSRC)/pds -I$(ALLSRC)/psc \
+	-I$(ALLSRC)/psys
+
+LTINCL = -I../include -I../config -I../misc -I../pdce -I../pds -I../psc \
+	-I../psys
+
+
+# Local source/object/lint files
+LSRCS =	plib.c
+
+LOBJS = $(LSRCS:.c=.o)
+
+LLNTS = $(LSRCS:.c=.ln)
+
+
+# Imported object files
+IOBJS = $(ALLOBJ)/pds/$(PVM_ARCH)/pds.o \
+	$(ALLOBJ)/pds/$(PVM_ARCH)/pds_msg_exchange.o \
+	$(ALLOBJ)/pds/$(PVM_ARCH)/pds_transidt.o \
+	$(ALLOBJ)/psc/$(PVM_ARCH)/psc.o \
+	$(ALLOBJ)/psc/$(PVM_ARCH)/psc_msg_exchange.o \
+	$(ALLOBJ)/pdce/$(PVM_ARCH)/pdce.o \
+	$(ALLOBJ)/psys/$(PVM_ARCH)/psys.o \
+	$(ALLOBJ)/misc/$(PVM_ARCH)/gputil.o
+
+
+# Major target definitions
+all: $(LOBJS)
+	ar cr libpious1.a $(LOBJS) $(IOBJS)
+	case x$(HASRANLIB) in xt) ranlib libpious1.a ;; esac
+	mv libpious1.a $(PVM_ROOT)/lib/$(PVM_ARCH)
+
+
+lint: LTFORCE $(LLNTS)
+	echo lint $(LINTFLAGS) $(LLNTS) >> lint.out
+	lint $(LINTFLAGS) $(LLNTS) >> lint.out
+
+$(LLNTS):
+	echo lint $(LINTFLAGS) $(LTINCL) -c $< >> lint.out
+	lint $(LINTFLAGS) $(LTINCL) -c $< >> lint.out
+
+LTFORCE:
+	- rm -f lint.out
+
+clean:
+	- rm -f *.o
+
+
+# Object target definitions
+plib.o: $(ALLSRC)/plib/plib.c $(ALLSRC)/plib/plib.h \
+	$(ALLSRC)/misc/nonansi.h $(ALLSRC)/misc/gpmacro.h \
+	$(ALLSRC)/include/pious_types.h $(ALLSRC)/include/pious_errno.h \
+	$(ALLSRC)/include/pious_std.h \
+	$(ALLSRC)/config/pious_sysconfig.h \
+	$(ALLSRC)/pds/pds_transidt.h $(ALLSRC)/pds/pds_fhandlet.h \
+	$(ALLSRC)/pds/pds.h \
+	$(ALLSRC)/psc/psc.h \
+	$(ALLSRC)/pdce/pdce_srcdestt.h $(ALLSRC)/pdce/pdce.h \
+	$(ALLSRC)/pdce/pdce_msgtagt.h
+	$(CC) $(MKFLAGS) $(CPINCL) -c $(ALLSRC)/plib/plib.c

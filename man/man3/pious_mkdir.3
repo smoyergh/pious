@@ -1,0 +1,114 @@
+.TH pious_mkdir 3PIOUS "25 January 1995" " " "PIOUS"
+.SH NAME
+pious_mkdir \- create a directory file
+
+.SH SYNOPSIS C
+int pious_mkdir(char *path, pious_modet mode);
+
+int pious_smkdir(struct pious_dsvec *dsv, int dsvcnt,
+char *path, pious_modet mode);
+
+.SH SYNOPSIS FORTRAN
+subroutine piousfmkdir(path, mode, rc)
+
+subroutine piousfsmkdir(hname, spath, lpath, dsvcnt, path, mode, rc)
+
+integer dsvcnt, mode, rc
+
+character*(*) hname, spath, lpath, path
+
+
+.SH DESCRIPTION
+pious_mkdir() creates directory file
+.I path,
+with permission bits set according to
+.I mode,
+on all default data servers.  If directory
+.I path
+exists on a subset of the data servers, then the directory file
+is created at the remaining servers.
+
+pious_smkdir() performs the same action as pious_mkdir(), except that
+the directory files are created on the data servers specified by the
+.I dsvcnt
+element vector
+.I dsv.
+
+Corresponding Fortran functions accept argument values of type integer
+and character, as required, and return the result code in
+.I rc.
+In specifying a set of data servers,
+.I hname, spath,
+and
+.I lpath
+take the place of the C structure
+.I dsv.
+
+See pious_open() for a discussion on valid values for arguments
+.I mode
+and
+.I dsv (hname, spath, lpath).
+
+
+.SH RETURN VALUES
+Upon successful completion, a value of PIOUS_OK (0) is returned.
+Otherwise, a negative value is returned indicating an error condition.
+
+Because a single error code is returned from potentially multiple operations,
+the value returned is the first error encountered other than PIOUS_EEXIST,
+if any.
+
+.SH ERRORS
+The following error code values can be returned.
+
+.TP
+PIOUS_EINVAL
+invalid argument value, or no data server executable on host
+
+.TP
+PIOUS_EACCES
+path prefix search permission or write permission denied
+
+
+.TP
+PIOUS_EEXIST
+named file exists
+
+.TP
+PIOUS_ENOENT
+path prefix component does not exist or
+.I path
+is the empty string
+
+.TP
+PIOUS_ENAMETOOLONG
+path or path component name too long
+
+.TP
+PIOUS_ENOTDIR
+a component of the path prefix is not a directory
+
+.TP
+PIOUS_ENOSPC
+no space to extend directory or file system
+
+.TP
+PIOUS_EINSUF
+insufficient system resources to complete operation
+
+.TP
+PIOUS_ETPORT
+error condition in underlying transport system
+
+.TP
+PIOUS_EUNXP
+unexpected error condition encountered
+
+.TP
+PIOUS_EFATAL
+fatal error; check data server error logs
+
+
+
+.SH SEE ALSO
+pious_open(3PIOUS)

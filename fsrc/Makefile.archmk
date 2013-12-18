@@ -1,0 +1,253 @@
+# PIOUS Fortran Library Function Interface: make file
+#
+# @(#)Makefile.archmk	2.2  28 Apr 1995  Moyer
+#
+# Generic makefile to be executed in architecture-specific subdirectory.
+# Presumes that PVM_ROOT, PVM_ARCH, ARCHLIB, and HASRANLIB have been defined
+# and that any compilation flags are passed via the variable MKFLAGS
+#
+#   PVM_ROOT  - PVM root directory
+#   PVM_ARCH  - PVM name for architecture
+#   ARCHLIB   - architecture-specific link libraries
+#   HASRANLIB - indicates if system has ranlib; 't' or 'f'
+#
+
+
+
+
+# Include Directories
+CSRC = ../../src
+FSRC = ..
+
+CPINCL = -I$(FSRC) -I$(CSRC)/include -I$(CSRC)/plib -I$(CSRC)/misc
+
+# General library function dependencies
+ALLDEPEND =	$(CSRC)/misc/nonansi.h \
+		$(CSRC)/include/pious_types.h $(CSRC)/include/pious_errno.h \
+		$(CSRC)/include/pious_std.h \
+		$(CSRC)/plib/plib.h \
+		$(FSRC)/fdefs.h $(FSRC)/fcstrcnvt.h
+
+# m4 configuration files
+M4CONF = $(PVM_ROOT)/conf/$(PVM_ARCH).m4
+M4     = m4
+RM     = rm -f
+
+
+# Local source and object files
+LSRCS = fcstrcnvt.c \
+	piousfopen.c \
+	piousfsopen.c \
+	piousfpopen.c \
+	piousfspopen.c \
+	piousfclose.c \
+	piousffstat.c \
+	piousfsysinfo.c \
+	piousfread.c \
+	piousforead.c \
+	piousfpread.c \
+	piousfwrite.c \
+	piousfowrite.c \
+	piousfpwrite.c \
+	piousflseek.c \
+	piousftbegin.c \
+	piousftend.c \
+	piousftabort.c \
+	piousfsetcwd.c \
+	piousfgetcwd.c \
+	piousfumask.c \
+	piousfchmod.c \
+	piousfschmod.c \
+	piousfunlink.c \
+	piousfsunlink.c \
+	piousfmkdir.c \
+	piousfsmkdir.c \
+	piousfrmdir.c \
+	piousfsrmdir.c \
+	piousfchmoddir.c \
+	piousfschmoddir.c \
+	piousfshutdown.c
+
+
+LOBJS = $(LSRCS:.c=.o)
+
+
+# Major target definitions
+all: $(LOBJS) xo2d
+	ar cr libfpious1.a $(LOBJS)
+	case x$(HASRANLIB) in xt) ranlib libfpious1.a ;; esac
+	mv libfpious1.a $(PVM_ROOT)/lib/$(PVM_ARCH)
+	rm -f $(PVM_ROOT)/include/fpious1.h
+	$(FSRC)/piousC2Ftool $(PVM_ROOT)/include/fpious1.h \
+		$(CSRC)/include/pious_std.h $(CSRC)/include/pious_errno.h \
+		$(FSRC)/fdefs.h
+	chmod 444 $(PVM_ROOT)/include/fpious1.h
+
+clean:
+	- rm -f *.o
+	- rm -f xo2d
+
+
+# Object target definitions
+
+xo2d: $(FSRC)/xo2d.c
+	$(CC) $(FSRC)/xo2d.c -o xo2d
+
+fcstrcnvt.o: $(FSRC)/fcstrcnvt.c $(FSRC)/fcstrcnvt.h
+	$(CC) $(MKFLAGS) $(CPINCL) -c $(FSRC)/fcstrcnvt.c
+
+
+piousfopen.o: $(FSRC)/piousfopen.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousfopen.m4 > piousfopen.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousfopen.c
+	$(RM) piousfopen.c
+
+piousfsopen.o: $(FSRC)/piousfsopen.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousfsopen.m4 > piousfsopen.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousfsopen.c
+	$(RM) piousfsopen.c
+
+piousfpopen.o: $(FSRC)/piousfpopen.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousfpopen.m4 > piousfpopen.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousfpopen.c
+	$(RM) piousfpopen.c
+
+piousfspopen.o: $(FSRC)/piousfspopen.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousfspopen.m4 > piousfspopen.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousfspopen.c
+	$(RM) piousfspopen.c
+
+piousfclose.o: $(FSRC)/piousfclose.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousfclose.m4 > piousfclose.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousfclose.c
+	$(RM) piousfclose.c
+
+piousffstat.o: $(FSRC)/piousffstat.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousffstat.m4 > piousffstat.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousffstat.c
+	$(RM) piousffstat.c
+
+piousfsysinfo.o: $(FSRC)/piousfsysinfo.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousfsysinfo.m4 > piousfsysinfo.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousfsysinfo.c
+	$(RM) piousfsysinfo.c
+
+piousfread.o: $(FSRC)/piousfread.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousfread.m4 > piousfread.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousfread.c
+	$(RM) piousfread.c
+
+piousforead.o: $(FSRC)/piousforead.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousforead.m4 > piousforead.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousforead.c
+	$(RM) piousforead.c
+
+piousfpread.o: $(FSRC)/piousfpread.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousfpread.m4 > piousfpread.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousfpread.c
+	$(RM) piousfpread.c
+
+piousfwrite.o: $(FSRC)/piousfwrite.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousfwrite.m4 > piousfwrite.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousfwrite.c
+	$(RM) piousfwrite.c
+
+piousfowrite.o: $(FSRC)/piousfowrite.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousfowrite.m4 > piousfowrite.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousfowrite.c
+	$(RM) piousfowrite.c
+
+piousfpwrite.o: $(FSRC)/piousfpwrite.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousfpwrite.m4 > piousfpwrite.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousfpwrite.c
+	$(RM) piousfpwrite.c
+
+piousflseek.o: $(FSRC)/piousflseek.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousflseek.m4 > piousflseek.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousflseek.c
+	$(RM) piousflseek.c
+
+piousftbegin.o: $(FSRC)/piousftbegin.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousftbegin.m4 > piousftbegin.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousftbegin.c
+	$(RM) piousftbegin.c
+
+piousftend.o: $(FSRC)/piousftend.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousftend.m4 > piousftend.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousftend.c
+	$(RM) piousftend.c
+
+piousftabort.o: $(FSRC)/piousftabort.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousftabort.m4 > piousftabort.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousftabort.c
+	$(RM) piousftabort.c
+
+piousfsetcwd.o: $(FSRC)/piousfsetcwd.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousfsetcwd.m4 > piousfsetcwd.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousfsetcwd.c
+	$(RM) piousfsetcwd.c
+
+piousfgetcwd.o: $(FSRC)/piousfgetcwd.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousfgetcwd.m4 > piousfgetcwd.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousfgetcwd.c
+	$(RM) piousfgetcwd.c
+
+piousfumask.o: $(FSRC)/piousfumask.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousfumask.m4 > piousfumask.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousfumask.c
+	$(RM) piousfumask.c
+
+piousfchmod.o: $(FSRC)/piousfchmod.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousfchmod.m4 > piousfchmod.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousfchmod.c
+	$(RM) piousfchmod.c
+
+piousfschmod.o: $(FSRC)/piousfschmod.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousfschmod.m4 > piousfschmod.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousfschmod.c
+	$(RM) piousfschmod.c
+
+piousfunlink.o: $(FSRC)/piousfunlink.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousfunlink.m4 > piousfunlink.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousfunlink.c
+	$(RM) piousfunlink.c
+
+piousfsunlink.o: $(FSRC)/piousfsunlink.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousfsunlink.m4 > piousfsunlink.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousfsunlink.c
+	$(RM) piousfsunlink.c
+
+piousfmkdir.o: $(FSRC)/piousfmkdir.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousfmkdir.m4 > piousfmkdir.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousfmkdir.c
+	$(RM) piousfmkdir.c
+
+piousfsmkdir.o: $(FSRC)/piousfsmkdir.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousfsmkdir.m4 > piousfsmkdir.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousfsmkdir.c
+	$(RM) piousfsmkdir.c
+
+piousfrmdir.o: $(FSRC)/piousfrmdir.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousfrmdir.m4 > piousfrmdir.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousfrmdir.c
+	$(RM) piousfrmdir.c
+
+piousfsrmdir.o: $(FSRC)/piousfsrmdir.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousfsrmdir.m4 > piousfsrmdir.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousfsrmdir.c
+	$(RM) piousfsrmdir.c
+
+piousfchmoddir.o: $(FSRC)/piousfchmoddir.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousfchmoddir.m4 > piousfchmoddir.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousfchmoddir.c
+	$(RM) piousfchmoddir.c
+
+piousfschmoddir.o: $(FSRC)/piousfschmoddir.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousfschmoddir.m4 > piousfschmoddir.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousfschmoddir.c
+	$(RM) piousfschmoddir.c
+
+piousfshutdown.o: $(FSRC)/piousfshutdown.m4 $(M4CONF) $(ALLDEPEND)
+	$(M4) $(M4CONF) $(FSRC)/piousfshutdown.m4 > piousfshutdown.c
+	$(CC) $(MKFLAGS) $(CPINCL) -c piousfshutdown.c
+	$(RM) piousfshutdown.c

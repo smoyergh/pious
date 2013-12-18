@@ -21,7 +21,7 @@ PIOUS is also written in C whereas HDFS is in Java.
 So why am I putting this code out on GitHub when PVM is no longer
 widely used?  Good question.
 
-Mainly because PIOUS has minimal dependence on PVM and can be trivally
+Mainly because PIOUS has minimal dependence on PVM and can be trivially
 ported to other environments.  All PVM dependencies are isolated
 to a single file: src/pdce/pdce.c (and related .h files in that directory).
 
